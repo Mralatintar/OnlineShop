@@ -14,6 +14,7 @@ urlpatterns = [
     path('pay_order_more/', pay_order_more),
     path('uco/',user_center_order),
     path('mtv/',middle_test_view),
+    # path('ceshi/', ceshi),
 
 
 

@@ -109,13 +109,15 @@ def logout(request):
 
 @loginValid
 def goods_list(request,status,page=1):              #列表视图
+    page=int(page)                                  #页码=1
     if status=="1":                                 #如果 物品状态是1 也就是上架中
         goodses=Goods.objects.filter(goods_status=1)   #筛选数据库中goods_status=1的数据
     elif status=="0":                               #如果 物品状态是0 也就是下架中
         goodses=Goods.objects.filter(goods_status=0)    #筛选数据中goods_status=0的数据
     else:
         goodses=Goods.objects.all()                 #否则就列出所有
-    goods_list=goodses
+    all_goods=Paginator(goodses,10)                 #把筛选出的商品分页器分页出结果给all_goods，all_goods=[1,2,3,4....]，可以循环
+    goods_list=all_goods.page(page)                 #goods_list为结果中的第page页
     return render(request,"seller/goods_list.html",locals())
 
 def good_status(request,state,id):             #物品的上架和下架状态（获取状态，ip）

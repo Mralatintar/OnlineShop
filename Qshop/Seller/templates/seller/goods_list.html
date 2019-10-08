@@ -1,4 +1,4 @@
-{% extends "Seller/base.html" %}
+﻿{% extends "Seller/base.html" %}
 {% block title %}
     商品列表
 {% endblock %}
@@ -61,5 +61,17 @@
     <tfoot></tfoot>
 </table>
 
+{#    下面为分页#}
+<ul style="float: right; margin-right: 100px;" class="pagination">
+        {% for p in all_goods.page_range %}
+            <li class="paginate_button page-item previous">
+                {% ifequal status '1'%}
+                    <a class="page-link" href="/Seller/goods_list/{{ p }}/1/">{{ p }}</a>
+                {% else %}
+                    <a class="page-link" href="/Seller/goods_list/{{ p }}/0/">{{ p }}</a>
+                {% endifequal %}
+            </li>
+        {% endfor %}
+    </ul>
 
 {% endblock %}
