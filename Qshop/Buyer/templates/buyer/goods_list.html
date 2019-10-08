@@ -74,6 +74,20 @@
                 "goods_id":goods_id,
                 "csrfmiddlewaretoken": csrf_token
             };
+            $.ajax(
+                {
+                    url:"/Buyer/add_cart/",
+                    type:"POST",
+                    data:sendData,
+                    success:function (data) {
+                        {#console.log(data)#}
+                        alert(data.data)
+                    },
+                    error:function (error) {
+                        console.log(error)
+                    }
+                }
+            )
         }
     </script>
 {% endblock %}
