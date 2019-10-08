@@ -77,11 +77,18 @@ def login(request):
                 db_password=user.password       #数据库中对应的密码值给变量db_password
                 password=setPassword(password)  #把网页上加密的password赋值给新的password
                 if db_password==password:       #如果都经过md5 加密的password值相等
-                    response=HttpResponseRedirect("/Seller/index/")    #访问主页index
-                    response.set_cookie("email",user.email)         #把数据库中的username下载到本地
-                    response.set_cookie("user_id",user.id)         #把数据库中的id下载到本地缓存
-                    request.session["email"]=user.email       #把用户信息放到服务器端
-                    return response                            #返回请求
+                    codes=Valid_Code.objects.filter(code_user=email).order_by("-code_time").first() #获取数据库表中对应用户的验证码信息按照时间倒序排列选第一个
+                    now=time.mktime(datetime.datetime.now().timetuple())  #获取当前时间的时间戳
+                    db_time=time.mktime(codes.code_time.timetuple())        #获取验证码的时间戳
+                    t=(now-db_time)/60                                      #获得间隔时间t
+                    if codes and codes.code_state==0 and t<=5 and codes.code_content.upper() == code.upper():
+                        response=HttpResponseRedirect("/Seller/index/")    #访问主页index
+                        response.set_cookie("email",user.email)         #把数据库中的username下载到本地
+                        response.set_cookie("user_id",user.id)         #把数据库中的id下载到本地缓存
+                        request.session["email"]=user.email       #把用户信息放到服务器端
+                        return response                            #返回请求
+                    else:
+                        error_message="验证码错误"
                 else:
                     error_message="密码错误"
             else:
@@ -166,7 +173,59 @@ def goods_add(request):                     #创建添加商品方法
         goods.goods_store=LoginUser.objects.get(id=int(user_id))    #把用户的id给goods表里的store
         goods.save()                                                #保存结果
     return render(request,"seller/goods_add.html",locals())
+import json
+import requests
+from Qshop.settings import DING_URL,IPHON_URL
 
+def sendiphon(content,to=None):                     #发送验证码到手机,通过互亿官网
+    # APIID
+    account = "C70940786"                           #APIID
+    # APIkey
+    password = "4385fce9e0ba75e2af3290e6759e7287"
+
+    mobile = "15225467786"                         #要发送的手机号
+    content = "您的验证码是：5201314。请不要把验证码泄露给其他人。"   #要发送的验证码
+    # 定义请求的头部
+    headers = {
+        "Content-type": "application/x-www-form-urlencoded",
+        "Accept": "text/plain"
+    }
+    # 定义请求的数据
+    data = {
+        "account": account,
+        "password": password,
+        "mobile": mobile,
+        "content": content,
+    }
+    # 发起数据
+    response = requests.post(IPHON_URL, headers=headers, data=data)
+    return response
+def sendDing(content,to=None):                          #封装发送到dingding的方法
+    headers={
+        "Content-Type":"application/json",
+        "Charset":"utf-8"
+    }
+    requests_data={
+        "msgtype":"text",
+        "text":{
+            "content":content
+        },
+        "at":{
+            "atMobiles":[
+            ],
+            "isAtAll":True
+        }
+    }
+    if to:
+        requests_data["at"]["atMobiles"].append(to)
+        requests_data["at"]["isAtAll"]=False
+    else:
+        requests_data["at"]["atMobiles"].clear()
+        requests_data["at"]["isAtAll"]=False                        #是否@所有人
+    sendData=json.dumps(requests_data)
+    response=requests.post(url=DING_URL,headers=headers, data=sendData)
+    content=response.json()
+    return content
 
 import random
 # def random_code(len=6):
@@ -175,7 +234,27 @@ import random
 #     return valid_code
 
 from Seller.mymodel import add_az
-
+@csrf_exempt
+def send_login_code(request):
+    result={
+        "code":200,
+        "data":""
+    }
+    if request.method == "POST":
+        email = request.POST.get("email")
+        code = add_az()
+        c = Valid_Code()
+        c.code_user = email
+        c.code_content = code
+        c.save()
+        send_data = "%s的验证码是%s,不能告诉任何人呀" % (email, code)
+        sendDing(send_data)  # 发送验证
+        # sendiphon(send_data)
+        result["data"] = "发送成功"
+    else:
+        result["code"] = 400
+        result["data"] = "请求错误"
+    return JsonResponse(result)
 
 from Buyer.models import OrderInfo
 def order_list(request,status):
