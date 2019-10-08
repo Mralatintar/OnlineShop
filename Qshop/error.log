@@ -1,0 +1,31 @@
+[2019-09-18 22:34:20]:name 'a' is not defined
+[2019-09-18 22:34:30]:name 'a' is not defined
+[2019-09-18 22:49:23]:name 'a' is not defined
+[2019-09-18 22:49:32]:name 'a' is not defined
+[2019-09-18 23:02:08]:name 'a' is not defined
+[2019-09-18 23:02:14]:name 'a' is not defined
+[2019-09-18 23:02:16]:name 'a' is not defined
+[2019-09-18 23:07:14]:name 'a' is not defined
+[2019-09-18 23:07:15]:name 'a' is not defined
+[2019-09-18 23:07:16]:name 'a' is not defined
+[2019-09-18 23:07:16]:name 'a' is not defined
+[2019-09-18 23:07:16]:name 'a' is not defined
+[2019-09-18 23:07:18]:name 'a' is not defined
+[2019-09-18 23:07:32]:name 'a' is not defined
+[2019-09-18 23:10:05]:name 'a' is not defined
+[2019-09-19 08:30:53]:name 'a' is not defined
+[2019-09-19 08:33:32]:name 'a' is not defined
+[2019-09-19 08:33:41]:name 'huqingjie' is not defined
+[2019-09-19 08:34:01]:name 'huqingjie' is not defined
+[2019-09-19 09:54:14]:get() returned more than one OrderInfo -- it returned 65!
+[2019-09-19 10:21:44]:Invalid block tag on line 54: 'endifequal', expected 'empty' or 'endfor'. Did you forget to register or load this tag?
+[2019-09-19 14:25:00]:order_list() missing 1 required positional argument: 'status'
+[2019-09-19 15:17:34]:OrderInfo matching query does not exist.
+[2019-09-19 15:27:35]:int() argument must be a string, a bytes-like object or a number, not 'NoneType'
+[2019-09-19 15:30:55]:In order to allow non-dict objects to be serialized set the safe parameter to False.
+[2019-09-19 15:31:56]:In order to allow non-dict objects to be serialized set the safe parameter to False.
+[2019-09-19 15:32:22]:In order to allow non-dict objects to be serialized set the safe parameter to False.
+[2019-09-19 16:25:32]:NOT NULL constraint failed: Buyer_orderinfo.goods_status
+[2019-09-19 16:25:37]:NOT NULL constraint failed: Buyer_orderinfo.goods_status
+[2019-09-19 18:57:02]:Goods matching query does not exist.
+[2019-09-19 19:02:01]:int() argument must be a string, a bytes-like object or a number, not 'NoneType'
