@@ -7,6 +7,7 @@ urlpatterns = [
     path('index/',index),
     path('register/',register),
     path('logout/', logout),
+    path('gt/', get_task),
 
 
     path('add_cart/', add_cart),

@@ -249,8 +249,12 @@ def user_center_order(request):
 # Create your views here.
 
 
-
-
+from CeleryTask.tasks import add
+def get_task(request):
+    num1=request.GET.get('num1',1)
+    num2=request.GET.get('num2',2)
+    add.delay(int(num1),int(num2))
+    return JsonResponse({"data":"success"})
 
 def middle_test_view(request):
     print("I am view")

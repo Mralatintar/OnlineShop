@@ -1,6 +1,6 @@
 from django.utils.deprecation import MiddlewareMixin
 from django.http import HttpResponse
-
+from CeleryTask.tasks import sendDing
 from Qshop.settings import ERROR_PATH
 import time
 class MiddleWareTest(MiddlewareMixin):
