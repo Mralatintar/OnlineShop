@@ -99,3 +99,106 @@ def logout(request):
     del request.session["username"]                 #删除服务器端的用户信息
     return response
 
+
+@loginValid
+def goods_list(request,status,page=1):              #列表视图
+    if status=="1":                                 #如果 物品状态是1 也就是上架中
+        goodses=Goods.objects.filter(goods_status=1)   #筛选数据库中goods_status=1的数据
+    elif status=="0":                               #如果 物品状态是0 也就是下架中
+        goodses=Goods.objects.filter(goods_status=0)    #筛选数据中goods_status=0的数据
+    else:
+        goodses=Goods.objects.all()                 #否则就列出所有
+    goods_list=goodses
+    return render(request,"seller/goods_list.html",locals())
+
+def good_status(request,state,id):             #物品的上架和下架状态（获取状态，ip）
+    id=int(id)                                  #转int类型
+    goods=Goods.objects.get(id=id)              #获取物品id
+    if state=="up":                             #如果传入的数据stata为up
+        goods.goods_status=1                    #将物品的状态改为1
+    elif state=="down":                         #如果传入的数据stata为down
+        goods.goods_status=0                    #将物品状态改为0
+    goods.save()                                #保存
+    url=request.META.get("HTTP_REFERER","/goods_list/1/1")  #url改为？
+    return HttpResponseRedirect(url)            #返回到网页
+
+@loginValid
+def personal_info(request):                  #个人中心的设置
+    user_id=request.COOKIES.get("user_id")  #获取本地缓存中的cookie
+    user=LoginUser.objects.get(id=int(user_id))#user获取id对应的全部信息
+    if request.method=="POST":                  #如果会话方式为post
+        user.username=request.POST.get("username")      #保存各种数据
+        user.gender=request.POST.get("gender")
+        user.age = request.POST.get("age")
+        user.phone_number = request.POST.get("phone_number")
+        user.address = request.POST.get("address")
+        photo = request.FILES.get("photo")
+        if photo:                                   #如果上传的photo有数据，保存photo
+           user.photo=photo
+        user.save()             #photo没有数据就只保存数据其他数据
+    return render(request, "seller/personal_info.html", locals())
+
+
+@loginValid
+def goods_add(request):                     #创建添加商品方法
+    good_type_list=GoodsType.objects.all    #获取表GoodsType中所有数据
+    if request.method=="POST":              #如果网页接口是post
+        data=request.POST                    #data为网页上接收的所有数据
+        files=request.FILES                 #files为接收的files文件，项目中是jpg
+
+        goods=Goods()                       #调用商品表格，实例化
+        goods.goods_number = data.get("goods_number")       #把网页上的数据分别加入到表中
+        goods.goods_name = data.get("goods_name")
+        goods.goods_price = data.get("goods_price")
+        goods.goods_count = data.get("goods_count")
+        goods.goods_location = data.get("goods_location")
+        goods.goods_safe_date = data.get("goods_safe_date")
+        goods.goods_pro_time = data.get("goods_pro_time")
+        goods.goods_status = 1
+
+        goods_type_id=int(data.get("goods_type"))
+        goods.goods_type=GoodsType.objects.get(id=goods_type_id)            #
+
+        picture=files.get("picture")                            #获取网页传来的picture
+        goods.picture=picture                                    #实例化图片给数据库
+
+        user_id=request.COOKIES.get("user_id")                   #把本地的的cookie的id给user_id
+        goods.goods_store=LoginUser.objects.get(id=int(user_id))    #把用户的id给goods表里的store
+        goods.save()                                                #保存结果
+    return render(request,"seller/goods_add.html",locals())
+
+
+import random
+# def random_code(len=6):
+#     string = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+#     valid_code = "".join([random.choice(string) for i in range(len)])
+#     return valid_code
+
+from Seller.mymodel import add_az
+
+
+from Buyer.models import OrderInfo
+def order_list(request,status):
+    status=int(status)
+    user_id=request.COOKIES.get("user_id")
+    store=LoginUser.objects.get(id=user_id)
+    store_order=store.orderinfo_set.filter(goods_status=status)
+    # goodx_list=OrderInfo.objects.filter(store_id=user_id).order_by("-goods_total_price")
+
+    return render(request,"seller/order_list.html",locals())
+
+def change_order(request):
+    order_id=request.GET.get("order_id")
+    good_status=request.GET.get("order_status")
+    order=OrderInfo.objects.get(id=order_id)
+    order.goods_status=int(good_status)
+    order.save()
+    url = request.META.get("HTTP_REFERER", "/order_list/0/")
+    return HttpResponseRedirect(url)
+# from CeleryTask.tasks import add
+# def get_task(request):
+#     num1=request.GET.get('num1',1)
+#     num2=request.GET.get('num2',2)
+#     add.delay(int(num1),int(num2))
+#     return JsonResponse({"data":"success"})
+# Create your views here.

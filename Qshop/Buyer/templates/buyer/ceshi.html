@@ -1,0 +1,54 @@
+{#<!DOCTYPE html>#}
+{#<html lang="en">#}
+{#<head>#}
+{#    <meta charset="UTF-8">#}
+{#    <title>Title</title>#}
+{#</head>#}
+{#<body>#}
+{#<h1>测试完成，请回到pycharm</h1>#}
+{#</body>#}
+{#</html>#}
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>js点击加1的实现</title>
+<style type="text/css">
+
+.jia{height:16px;width: auto;text-align:center;display: inline-block;padding: 5px;border: 1px solid #ccc;cursor:pointer;}
+.jian{height:16px;width: auto;text-align:center;display: inline-block;padding: 5px;border: 1px solid #ccc;cursor:pointer;}
+
+</style>
+<script type="text/javascript">
+window.onload = function()
+{
+var Jjian = document.getElementById("jian");
+var Jjia = document.getElementById("jia");
+var zj = document.getElementsByTagName("input")[0];
+var i = 1;
+
+Jjia.onclick = function()
+{
+//zj.value = ++i;
+i = zj.value;
+zj.value = ++i;
+
+}
+Jjian.onclick = function()
+{
+i = zj.value;
+zj.value = --i;
+}
+
+}
+</script>
+</head>
+<body>
+<div id="put">
+<span class="jian" id="jian">-</span>
+<input type="text" value="1" style="width:50px;text-align:center;height:22px;" />
+<span class="jia" id="jia">+</span>
+</div>
+</body>
+</html>
