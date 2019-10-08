@@ -16,6 +16,11 @@ urlpatterns = [
     path('mtv/',middle_test_view),
 
 
+
+    path('pay_order/', pay_order),
+    path('alipay/', alipayGo),
+    path('pay_result/', pay_result),
+
     path('goods_list/', goods_list),
     path('user_center_info/', user_center_info),
 

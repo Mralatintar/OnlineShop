@@ -110,6 +110,34 @@ def user_center_info(request):                              #用户个人中心
 
 import time                                                 #引入time模块
 import datetime                                             #引入模块
+@loginValid
+def pay_order(request):                         #订单详情页面，生成两个表的数据
+    goods_id=request.GET.get("goods_id")       #获取请求中的goods_id
+    count=request.GET.get("count")              #获取请求页中的count
+    if goods_id and count:                       #如果不为空
+        order=PayOrder()                         #实例化下单数据
+        order.order_number=str(time.time()).replace(".","") #生成时间戳订单
+        order.order_data=datetime.datetime.now()       #上传时间为生成时间now
+        # order.order_status=0                     #设置商品状态为0
+        order.order_user=LoginUser.objects.get(id=int(request.COOKIES.get("user_id")))   #获取当前登录用户的id
+        order.save()                        #保存
+
+        goods=Goods.objects.get(id=int(goods_id))       #获取和商品名一致的goods信息
+        order_info=OrderInfo()                          #实例化订单详情的网页 的表格
+        order_info.order_id=order                       #把order放入表中
+        order_info.goods_id=goods.id                    #
+        #.....
+        order_info.goods_picture = goods.picture        #商品价格
+        order_info.goods_name = goods.goods_name        #商品名
+        order_info.goods_count = int(count)             #数量
+        order_info.goods_price = goods.goods_price      #
+        order_info.goods_status = 0
+        order_info.goods_total_price = goods.goods_price * int(count)
+        order_info.store_id = goods.goods_store  # 商品卖家，goods.goods_store本身就是一条卖家数据
+        order_info.save()
+        order.order_total = order_info.goods_total_price   #商品总价
+        order.save()                                        #保存
+    return render(request, "buyer/pay_order.html", locals())
 
 @loginValid
 def pay_order_more(request):    #多个商品订单
@@ -150,7 +178,35 @@ def pay_order_more(request):    #多个商品订单
 
 from Qshop.settings import alipay_public_key_string,alipay_private_key_string
 
+def alipayGo(request):                              #跳转支付页面
+    order_number=request.GET.get("order_number")  #获取商品单号
+    order_total=request.GET.get("total")           #获取商品总价
+    alipay = AliPay(                             #使用支付宝模块绑定卖家
+        appid="2016101200667729",
+        app_notify_url=None,
+        app_private_key_string=alipay_private_key_string,
+        alipay_public_key_string=alipay_public_key_string,
+        sign_type="RSA2"
+    )
+    order_string = alipay.api_alipay_trade_page_pay(
+        out_trade_no=order_number,                              #获取商品单号
+        total_amount=str(order_total),                          #商品总价
+        subject="爱情买卖,没有杀害",                        #支付类型
+        return_url="http://127.0.0.1:8000/Buyer/pay_result/", #跳转到pay_result结果页
+        notify_url="http://127.0.0.1:8000/Buyer/pay_result/"
+    )
+    result = "https://openapi.alipaydev.com/gateway.do?" + order_string  #拼接连接
 
+    return HttpResponseRedirect(result)
+def pay_result(request):                            #结果页
+    out_trade_no=request.GET.get("out_trade_no")    #获取商品单号
+    if out_trade_no:                                  #如果有数据
+        order=PayOrder.objects.get(order_number=out_trade_no)   #找到商品单号对应的订单详情
+                                                                 #把商品状态改为1
+        xdd=OrderInfo.objects.get(order_id=order.order_user_id)
+        xdd.goods_status=1
+        xdd.save()                                            #保存
+    return render(request,"buyer/pay_result.html",locals())
 
 @loginValid
 def add_cart(request):                          #加入到购物车的方法
